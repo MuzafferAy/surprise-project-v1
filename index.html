@@ -5,31 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Barışalım mııı? ❤️</title>
     <style>
-        body {
-            margin: 0; padding: 0; height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        * { box-sizing: border-box; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; touch-action: none; 
+            font-family: 'Segoe UI', sans-serif;
             background: radial-gradient(circle, #fff5f7 0%, #ffeef0 100%);
-            font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none;
         }
-        #question { color: #d63384; font-size: 2.2rem; text-align: center; margin: 0 20px 50px 20px; z-index: 10; }
-        .buttons { display: flex; gap: 20px; align-items: center; position: relative; width: 100%; justify-content: center; }
+        #container {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+        #question { 
+            color: #d63384; font-size: 2.5rem; text-align: center; 
+            margin-bottom: 50px; z-index: 10; pointer-events: none;
+        }
+        .buttons { display: flex; gap: 20px; align-items: center; z-index: 10; }
         button {
             padding: 15px 35px; font-size: 1.3rem; border: none; border-radius: 50px;
-            cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-weight: bold; box-shadow: 0 6px 20px rgba(214, 51, 132, 0.2);
+            cursor: pointer; transition: transform 0.2s; font-weight: bold;
+            box-shadow: 0 6px 20px rgba(214, 51, 132, 0.2);
+            white-space: nowrap; /* Şeklinin bozulmasını engeller */
         }
-        #yesBtn { background-color: #ff4d6d; color: white; z-index: 100; }
-        #noBtn { background-color: #adb5bd; color: white; position: absolute; transition: all 0.2s ease; z-index: 50; }
-        canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
+        #yesBtn { background-color: #ff4d6d; color: white; position: relative; }
+        #noBtn { 
+            background-color: #adb5bd; color: white; 
+            position: fixed; /* Ekranda her yere gidebilmesi için */
+            transition: 0.1s ease;
+        }
+        canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 5; }
     </style>
 </head>
 <body>
 
-    <h1 id="question">barışalım mııı? ❤️</h1>
-    
-    <div class="buttons">
-        <button id="yesBtn">EVET</button>
-        <button id="noBtn" style="right: 10%;">HAYIR</button>
+    <div id="container">
+        <h1 id="question">barışalım mııı? ❤️</h1>
+        
+        <div class="buttons">
+            <button id="yesBtn">EVET</button>
+            <button id="noBtn">HAYIR</button>
+        </div>
     </div>
 
     <canvas id="heartCanvas"></canvas>
@@ -45,19 +61,30 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Hayır butonu kaçma mantığı (Geliştirilmiş Sınırlar)
+        // Başlangıç konumu ayarla
+        noBtn.style.left = (window.innerWidth / 2 + 50) + "px";
+        noBtn.style.top = (window.innerHeight / 2 + 30) + "px";
+
         const moveNo = (e) => {
             if(e) e.preventDefault();
-            const margin = 50; // Kenarlardan güvenli mesafe
-            const maxX = window.innerWidth - noBtn.offsetWidth - margin;
-            const maxY = window.innerHeight - noBtn.offsetHeight - margin;
             
-            const randomX = Math.max(margin, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(margin, Math.floor(Math.random() * maxY));
+            // Butonun genişlik ve yüksekliğini al
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+
+            // Güvenli alan hesapla (Kenarlardan 20px mesafe)
+            const padding = 20;
+            const maxX = window.innerWidth - btnWidth - padding;
+            const maxY = window.innerHeight - btnHeight - padding;
+            
+            // Rastgele koordinat üret
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
             
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
 
+            // Evet butonunu büyüt
             yesScale += 0.25; 
             yesBtn.style.transform = `scale(${yesScale})`;
         };
@@ -65,22 +92,20 @@
         noBtn.addEventListener('touchstart', moveNo);
         noBtn.addEventListener('mouseover', moveNo);
 
-        // Uçuşan Kalpler Sınıfı
+        // Uçuşan Kalpler Mantığı
         class Heart {
-            constructor() {
-                this.reset();
-            }
+            constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = canvas.height + Math.random() * 500;
-                this.size = Math.random() * 15 + 10;
-                this.speed = Math.random() * 2 + 1;
-                this.opacity = Math.random() * 0.5 + 0.5;
-                this.swing = Math.random() * 2;
+                this.size = Math.random() * 20 + 15;
+                this.speed = Math.random() * 3 + 2;
+                this.opacity = Math.random() * 0.6 + 0.4;
+                this.swing = Math.random() * 3;
             }
             update() {
                 this.y -= this.speed;
-                this.x += Math.sin(this.y / 30) * this.swing;
+                this.x += Math.sin(this.y / 50) * this.swing;
                 if (this.y < -50) this.reset();
             }
             draw() {
@@ -104,12 +129,11 @@
             noBtn.style.display = "none";
             yesBtn.style.display = "none";
             
-            // Kalpleri başlat
-            for(let i = 0; i < 50; i++) hearts.push(new Heart());
+            // 60 tane kalp uçur
+            for(let i = 0; i < 60; i++) hearts.push(new Heart());
             animate();
         });
 
-        // Ekran boyutu değişirse canvas'ı güncelle
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
