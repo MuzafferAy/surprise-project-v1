@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sana Bir Mesajım Var ❤️</title>
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(circle, #fff5f7 0%, #ffeef0 100%);
+            font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none;
+        }
+        #question { color: #d63384; font-size: 2.2rem; text-align: center; margin: 0 20px 50px 20px; transition: all 0.3s; }
+        .buttons { display: flex; gap: 20px; align-items: center; position: relative; width: 100%; justify-content: center; }
+        button {
+            padding: 15px 35px; font-size: 1.3rem; border: none; border-radius: 50px;
+            cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: bold; box-shadow: 0 6px 20px rgba(214, 51, 132, 0.2);
+        }
+        #yesBtn { background-color: #ff4d6d; color: white; z-index: 100; }
+        #noBtn { background-color: #adb5bd; color: white; position: absolute; transition: all 0.2s ease; z-index: 50; }
+        .heart-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+    <h1 id="question">Her şeyi unutup barışalım mı? ❤️</h1>
+    
+    <div class="buttons">
+        <button id="yesBtn">EVET</button>
+        <button id="noBtn" style="left: 60%;">HAYIR</button>
+    </div>
+
+    <canvas id="heartCanvas" class="heart-bg"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const question = document.getElementById('question');
+        let yesScale = 1;
+
+        const moveNo = (e) => {
+            if(e) e.preventDefault();
+            const padding = 100;
+            const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+            const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+            
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+            
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+
+            yesScale += 0.35; // Her hayırda Evet daha çok büyür
+            yesBtn.style.transform = `scale(${yesScale})`;
+            
+            if(yesScale > 5) { // Artık kaçacak yer kalmadığında
+                noBtn.style.display = 'none';
+            }
+        };
+
+        noBtn.addEventListener('touchstart', moveNo);
+        noBtn.addEventListener('mouseover', moveNo);
+
+        yesBtn.addEventListener('click', () => {
+            document.body.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#fff;">
+                    <h1 style="font-size:3.5rem; color:#ff4d6d; text-align:center; animation: pulse 1s infinite;">Seni Çok Seviyorum! ❤️<br><span style="font-size:1.5rem">İyi ki varsın...</span></h1>
+                </div>
+            `;
+            
+            // Konfeti Yağmuru
+            var duration = 15 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        });
+    </script>
+</body>
+</html>
